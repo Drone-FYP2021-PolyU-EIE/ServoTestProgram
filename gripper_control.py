@@ -17,7 +17,7 @@ def set_servo_pwm(servo_n, microseconds):
     )
 
 # Create the connection
-master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+master = mavutil.mavlink_connection('udp:0.0.0.0:{}'.format(1))
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
 
