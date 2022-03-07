@@ -5,13 +5,13 @@ import time
 # Import mavutil
 from pymavlink import mavutil
 
-def set_servo_pwm(servo_n, microseconds):
+def set_servo_pwm(instance, microseconds):
     # master.set_servo(servo_n+8, microseconds) or:
     master.mav.command_long_send(
         master.target_system, master.target_component,
         mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
         0,            # first transmission of this command
-        servo_n + 8,  # servo instance, offset by 8 MAIN outputs
+        instance,  # servo instance, offset by 8 MAIN outputs
         microseconds, # PWM pulse-width
         0,0,0,0,0     # unused parameters
     )
