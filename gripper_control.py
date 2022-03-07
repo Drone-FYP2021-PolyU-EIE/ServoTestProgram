@@ -18,6 +18,7 @@ def set_servo_pwm(instance, microseconds):
 
 # Create the connection
 master = mavutil.mavlink_connection('/dev/ttyACM0',baud=57600)
+# master = mavutil.mavlink_connection('/dev/ttyUSB0')
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
 
