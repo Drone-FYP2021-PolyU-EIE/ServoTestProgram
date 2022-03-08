@@ -12,12 +12,12 @@ def gripper():
 	msg_out = ActuatorControl()
 	msg_out.group_mix = 1 
 	msg_out.controls = [-1.0, -1.0, 0.0, 0.0, -1.0, -1.0, -1.0, -1.0]
-	is_low = True
+	low = True
 
 	while not rospy.is_shutdown():
-		is_low = not is_low
+		low = not low
 
-		if is_low:
+		if low:
 			msg_out.controls = [-1.0, -1.0, 0.0, 0.0, -1.0, -1.0, -1.0, -1.0]
 			rospy.loginfo("Set servos low")
 		else:
