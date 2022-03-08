@@ -1,28 +1,35 @@
+#!/usr/bin/env python
+import rospy
+from mavros_msgs.msg import ActuatorControl
 
-# Example of how to directly control a Pixhawk servo output with pymavlink.
+def gripper():
+	rospy.init_node('Gripper', anonymous=True)
 
-import time
-# Import mavutil
-from pymavlink import mavutil
+	pub = rospy.Publisher('/mavros/actuator_control', ActuatorControl, queue_size=10)
 
-def set_servo_pwm(instance, microseconds):
-    # master.set_servo(servo_n+8, microseconds) or:
-    master.mav.command_long_send(
-        master.target_system, master.target_component,
-        mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
-        0,            # first transmission of this command
-        instance,  # servo instance, offset by 8 MAIN outputs
-        microseconds, # PWM pulse-width
-        0,0,0,0,0     # unused parameters
-    )
+	rate = rospy.Rate(1)
 
-# Create the connection
-master = mavutil.mavlink_connection('/dev/ttyACM0',baud=57600)
-# master = mavutil.mavlink_connection('/dev/ttyUSB0')
-# Wait a heartbeat before sending commands
-master.wait_heartbeat()
+	msg_out = ActuatorControl()
+	msg_out.group_mix = 1 
+	msg_out.controls = [-1.0, -1.0, 0.0, 0.0, -1.0, -1.0, -1.0, -1.0]
+	is_low = True
 
-# command servo_1 to go from min to max in steps of 50us, over 2 seconds
-for us in range(1100, 1900, 50):
-    set_servo_pwm(1, us)
-    time.sleep(0.125)
+	while not rospy.is_shutdown():
+		is_low = not is_low
+
+		if is_low:
+			msg_out.controls = [-1.0, -1.0, 0.0, 0.0, -1.0, -1.0, -1.0, -1.0]
+			rospy.loginfo("Set servos low")
+		else:
+			msg_out.controls = [1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+			rospy.loginfo("Set servos high")
+
+		msg_out.header.stamp = rospy.Time.now()
+		pub.publish(msg_out)
+		rate.sleep()
+
+if __name__ == '__main__':
+	try:
+		gripper()
+	except rospy.ROSInterruptException:
+		pass
