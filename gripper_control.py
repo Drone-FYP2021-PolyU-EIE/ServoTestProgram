@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from mavros_msgs.msg import ActuatorControl
+#  actuator_armed and actuator_controls topics
 
 def gripper():
 	rospy.init_node('Gripper', anonymous=True)
