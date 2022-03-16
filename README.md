@@ -5,3 +5,9 @@ from Crystal(need install extra package la, talk me eariler la by Steve)
 ```bash
 
 ```
+## harware info 
+
+## setting
+must arm  
+disable arm safety switch   
+arm checklist   
