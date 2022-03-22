@@ -1,36 +1,33 @@
-#!/usr/bin/env python
-import rospy
-from mavros_msgs.msg import ActuatorControl
-#  actuator_armed and actuator_controls topics
 
-def gripper():
-	rospy.init_node('Gripper', anonymous=True)
+# Example of how to directly control a Pixhawk servo output with pymavlink.
 
-	pub = rospy.Publisher('/mavros/actuator_control', ActuatorControl, queue_size=10)
+import time
+# Import mavutil
+from pymavlink import mavutil
 
-	rate = rospy.Rate(1)
+def set_servo_pwm(servo_n, microseconds):
+    # master.set_servo(servo_n+8, microseconds)
+    master.mav.command_long_send(
+        master.target_system, master.target_component,
+        mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
+        0,            # first transmission of this command
+        servo_n,  # servo instance, offset by 8 MAIN outputs
+        microseconds, # PWM pulse-width
+        0,0,0,0,0     # unused parameters
+    )
 
-	msg_out = ActuatorControl()
-	msg_out.group_mix = 1 
-	msg_out.controls = [-1.0, -1.0, 0.0, 0.0, -1.0, -1.0, -1.0, -1.0]
-	low = True
+# Create the connection
+# master = mavutil.mavlink_connection('/dev/ttyUSB0')
+master = mavutil.mavlink_connection('/dev/ttyACM0',baud=57600)
+# master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+print("ok")
+# master = mavutil.mavlink_connection('udp:0.0.0.0:{}'.format(1))
+# Wait a heartbeat before sending commands
+master.wait_heartbeat()
+print("wait")
 
-	while not rospy.is_shutdown():
-		low = not low
-
-		if low:
-			msg_out.controls = [-1.0, -1.0, 0.0, 0.0, -1.0, -1.0, -1.0, -1.0]
-			rospy.loginfo("Set servos low")
-		else:
-			msg_out.controls = [1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-			rospy.loginfo("Set servos high")
-
-		msg_out.header.stamp = rospy.Time.now()
-		pub.publish(msg_out)
-		rate.sleep()
-
-if __name__ == '__main__':
-	try:
-		gripper()
-	except rospy.ROSInterruptException:
-		pass
+# command servo_1 to go from min to max in steps of 50us, over 2 seconds
+for us in range(1100, 2000, 10):
+    print("start")
+    set_servo_pwm(1, us)
+    time.sleep(0.1)
